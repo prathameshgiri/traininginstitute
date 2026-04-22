@@ -14,10 +14,10 @@ Follow these **4 Simple Steps** to get the project running in under 5 minutes:
 - Run this command in your terminal to create the database:
   ```powershell
   # If using PowerShell (Blue terminal):
-  Get-Content "src/main/resources/database/schema.sql" | mysql -u root -p
+  Get-Content "src/main/resources/database/schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root -p
 
   # If using CMD (Black terminal):
-  mysql -u root -p < "src/main/resources/database/schema.sql"
+  "C:\xampp\mysql\bin\mysql.exe" -u root -p < "src/main/resources/database/schema.sql"
   ```
 
 ### 2️⃣ Build the Project
@@ -109,12 +109,12 @@ Ensure these paths exist in your OS Environment Variables:
    
    **For PowerShell (Standard in VS Code):**
    ```powershell
-   Get-Content "src/main/resources/database/schema.sql" | mysql -u root -p
+   Get-Content "src/main/resources/database/schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root -p
    ```
    
    **For Command Prompt (CMD):**
    ```bash
-   mysql -u root -p < "src/main/resources/database/schema.sql"
+   "C:\xampp\mysql\bin\mysql.exe" -u root -p < "src/main/resources/database/schema.sql"
    ```
 
 ### 4.2 Maven Build Process
