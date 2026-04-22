@@ -35,7 +35,7 @@ Follow these **4 Simple Steps** to get the project running in under 5 minutes:
 - Run Tomcat in a dedicated terminal window:
   ```cmd
   cd C:\DevTools\apache-tomcat-10.1.30\bin
-  java.exe -classpath bootstrap.jar;tomcat-juli.jar -Dcatalina.base=.. -Dcatalina.home=.. -Djava.io.tmpdir=..\temp org.apache.catalina.startup.Bootstrap start
+  java.exe -classpath "bootstrap.jar;tomcat-juli.jar" -Dcatalina.base=".." -Dcatalina.home=".." -Djava.io.tmpdir="..\temp" org.apache.catalina.startup.Bootstrap start
   ```
 - Open your browser: **[http://localhost:8080/TrainingInstitutePortal/login](http://localhost:8080/TrainingInstitutePortal/login)**
 
@@ -143,7 +143,7 @@ To start Tomcat permanently from your current session:
 ```powershell
 # Bypassing the intermediate startup scripts for a robust local server:
 cd C:\DevTools\apache-tomcat-10.1.30\bin
-java.exe -classpath bootstrap.jar;tomcat-juli.jar -Dcatalina.base=.. -Dcatalina.home=.. -Djava.io.tmpdir=..\temp org.apache.catalina.startup.Bootstrap start
+java.exe -classpath "bootstrap.jar;tomcat-juli.jar" -Dcatalina.base=".." -Dcatalina.home=".." -Djava.io.tmpdir="..\temp" org.apache.catalina.startup.Bootstrap start
 ```
 Wait for the terminal to print: `Server startup in XXXX milliseconds`.
 
@@ -244,7 +244,7 @@ Never rely on automated `.bat` wrapping loops if your terminal is volatile. Hook
 2. Initialize Tomcat directly and natively by bypassing the scripts to lock it definitively:
    ```cmd
    cd C:\DevTools\apache-tomcat-10.1.30\bin
-   java.exe -classpath bootstrap.jar;tomcat-juli.jar -Dcatalina.base=".." -Dcatalina.home=".." org.apache.catalina.startup.Bootstrap start
+   java.exe -classpath "bootstrap.jar;tomcat-juli.jar" -Dcatalina.base=".." -Dcatalina.home=".." org.apache.catalina.startup.Bootstrap start
    ```
 
 ### T2: "Another Session is Already Active" DB Locking
