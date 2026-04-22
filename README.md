@@ -78,9 +78,10 @@ mysql -u root -p < "src/main/resources/database/schema.sql"
 
 ### 4.2 Maven Build Process
 
-Validate the Maven lifecycle mappings and build the target snapshot:
+Because `mvn` might not be mapped globally in your system environment variables, execute the build specifically using the explicit toolchain path. Validate the Maven lifecycle mappings and build the target snapshot:
+
 ```cmd
-mvn clean compile package
+C:\DevTools\apache-maven-3.9.6\bin\mvn.cmd clean compile package
 ```
 
 ### 4.3 Tomcat Deployment
