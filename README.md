@@ -3,6 +3,17 @@
     <p>A highly scalable, secure, and modern Java Enterprise web application for managing students, internships, and online examinations.</p>
 </div>
 
+### 🛠️ Technology Stack Used
+
+This project is built using industry-standard tools for high performance, security, and scalability:
+
+- **☕ Java 17 (Jakarta EE 9+):** The core backend is powered by raw Java Servlets without heavy frameworks, ensuring lightning-fast response times and robust logic processing.
+- **🖥️ Apache Tomcat 10.1:** Used as the primary web server and Servlet container for deploying and running the enterprise application seamlessly.
+- **🛢️ MySQL / MariaDB:** Serves as the primary Relational Database Management System (RDBMS) to handle complex relationships between students, internships, exams, and audit logs securely.
+- **🎨 JSP, HTML5, CSS3 & Vanilla JS:** The frontend is dynamically rendered using JavaServer Pages (JSP) coupled with strict JSTL. It features a custom "Dark Glassmorphism" UI built with pure CSS3 variables and Vanilla JavaScript for interactive elements (like the live exam timer).
+- **📦 Apache Maven:** Handles project governance, lifecycle management, and dependency injection (such as `mysql-connector-j` and `jBCrypt`).
+- **🔐 BCrypt Algorithm:** Implemented for cryptographic password hashing to maintain high-level system security.
+
 ---
 
 # 🚀 QUICK START GUIDE
