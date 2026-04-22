@@ -5,41 +5,70 @@
 
 ---
 
-# 🚀 QUICK START GUIDE (Simple Running Steps)
+# 🚀 QUICK START GUIDE
 
-Follow these **4 Simple Steps** to get the project running in under 5 minutes:
+## ✅ EASIEST WAY — बस 3 Steps!
 
-### 1️⃣ Prepare the Database
-- Open **XAMPP Control Panel** and Start **MySQL**.
-- Run this command in your terminal to create the database:
-  ```powershell
-  # If using PowerShell (Blue terminal):
-  Get-Content "src/main/resources/database/schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root -p
+### Step 1️⃣ — पहली बार सिर्फ एक बार करें (Database Setup)
 
-  # If using CMD (Black terminal):
-  "C:\xampp\mysql\bin\mysql.exe" -u root -p < "src/main/resources/database/schema.sql"
-  ```
+XAMPP Control Panel खोलें → **MySQL START** करें → फिर यह command चलाएं:
 
-### 2️⃣ Build the Project
-- Run the Maven build command using your local path:
-  ```cmd
-  C:\DevTools\apache-maven-3.9.6\bin\mvn.cmd clean compile package
-  ```
-- This will generate a file: `target/TrainingInstitutePortal.war`.
+```powershell
+& "C:\xampp\mysql\bin\mysql.exe" -u root -proot training_institute_db 2>$null
+if ($LASTEXITCODE -ne 0) {
+    & "C:\xampp\mysql\bin\mysql.exe" -u root -proot -e "CREATE DATABASE IF NOT EXISTS training_institute_db;"
+    Get-Content "src\main\resources\database\schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root -proot training_institute_db
+    Write-Host "Database imported!" -ForegroundColor Green
+} else { Write-Host "Database already exists, skipping." -ForegroundColor Yellow }
+```
 
-### 3️⃣ Deploy to Tomcat
-- Go to `C:\DevTools\apache-tomcat-10.1.30\webapps\` and **Delete** any folder named `TrainingInstitutePortal`.
-- **Copy** the new `target/TrainingInstitutePortal.war` and **Paste** it into that `webapps` folder.
-
-### 4️⃣ Start & Browse
-- Run Tomcat in a dedicated terminal window:
-  ```cmd
-  cd C:\DevTools\apache-tomcat-10.1.30\bin
-  .\catalina.bat run
-  ```
-- Open your browser: **[http://localhost:8080/TrainingInstitutePortal/login](http://localhost:8080/TrainingInstitutePortal/login)**
+> ⚠️ यह command **सिर्फ पहली बार** चलाएं।
 
 ---
+
+### Step 2️⃣ — हर बार Project चलाने के लिए (One Command)
+
+PowerShell में project folder खोलें और **बस यह एक command** चलाएं:
+
+```powershell
+.\run.ps1
+```
+
+**बस!** यह script खुद करेगी:
+- ✅ MySQL check करेगी
+- ✅ पुराना Tomcat बंद करेगी
+- ✅ Project build करेगी
+- ✅ Deploy करेगी
+- ✅ Tomcat start करेगी
+
+---
+
+### Step 3️⃣ — Browser में खोलें
+
+`Server startup in [XXXX] milliseconds` दिखे तो:
+
+👉 **[http://localhost:8080/TrainingInstitutePortal/login](http://localhost:8080/TrainingInstitutePortal/login)**
+
+| Role | Email | Password |
+|------|-------|----------|
+| 🔑 Admin | `admin@traininginstitute.com` | `Admin@123` |
+| 👨‍🎓 Student | `aarvi.kulkarni@student.com` | `Student@123` |
+
+> ⚠️ **Terminal बंद मत करें** — Tomcat उसी में चलता है।
+
+---
+
+## ❓ Problem आए तो
+
+| Error | Fix |
+|-------|-----|
+| `JAVA_HOME not defined` | Admin PowerShell में: `[System.Environment]::SetEnvironmentVariable("JAVA_HOME","C:\Program Files\Java\jdk-25","Machine")` |
+| `Database error` | XAMPP → MySQL START करें |
+| `ERR_FAILED / Port 8080` | `Get-Process -Name "java" \| Stop-Process -Force` फिर `.\run.ps1` |
+| `Access denied for root` | `DBConnection.java` में `DB_PASS = "root"` check करें |
+
+---
+
 
 ## 📑 Table of Contents
 
@@ -98,6 +127,24 @@ Ensure these paths exist in your OS Environment Variables:
 2. `CATALINA_HOME` pointing directly to the `/apache-tomcat-10.1.30` installation path.
 3. `M2_HOME` pointing to Maven binaries.
 4. Database Socket listening strictly on Localhost TCP `Port 3306`.
+
+**Setting `JAVA_HOME` (One-Time Setup — Admin PowerShell Required):**
+
+If Tomcat throws `Neither the JAVA_HOME nor the JRE_HOME environment variable is defined`, run these commands in **PowerShell opened as Administrator**:
+
+```powershell
+# Step 1: Verify your JDK installation path
+Get-ChildItem "C:\Program Files\Java"
+
+# Step 2: Set JAVA_HOME permanently (System-wide)
+[System.Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk-25", "Machine")
+
+# Step 3: Verify it is set correctly
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-25"
+Write-Host "JAVA_HOME = $env:JAVA_HOME"
+```
+
+> ⚠️ **Note:** Replace `jdk-25` with your actual JDK folder name (e.g., `jdk-17`, `jdk-21`). After setting, **open a new terminal window** before running Tomcat.
 
 ---
 
@@ -331,6 +378,45 @@ Exterminate the raw emoji mapping completely. Refactor the DOM object to leverag
 <!-- Victorious -->
 <span class="nav-icon"><i class="fas fa-graduation-cap"></i></span>
 ```
+
+### T7: `Neither the JAVA_HOME nor the JRE_HOME environment variable is defined`
+
+**Issue Encountered:**
+Running `catalina.bat run` throws the error:
+```
+Neither the JAVA_HOME nor the JRE_HOME environment variable is defined
+At least one of these environment variable is needed to run this program
+```
+Tomcat exits immediately without starting.
+
+**Root Cause:**
+Tomcat's startup scripts (`catalina.bat`) require the `JAVA_HOME` System Environment Variable to locate the JRE/JDK runtime. Java may be installed correctly and accessible from the terminal (`java -version` works), but if `JAVA_HOME` was never explicitly declared as a System Variable in Windows, Tomcat's script cannot resolve the Java binary path automatically.
+
+**Definitive Fix:**
+
+1. **Open PowerShell as Administrator** (Right-click → *Run as Administrator*).
+2. Run the following commands:
+
+```powershell
+# Verify your installed JDK folder name first:
+Get-ChildItem "C:\Program Files\Java"
+
+# Set JAVA_HOME permanently at the System level:
+[System.Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Java\jdk-25", "Machine")
+
+# Apply for the current session immediately:
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-25"
+Write-Host "JAVA_HOME = $env:JAVA_HOME"
+```
+
+3. **Open a brand new terminal window** (the old one will not pick up the new variable).
+4. Start Tomcat again:
+```powershell
+cd C:\DevTools\apache-tomcat-10.1.30\bin
+.\catalina.bat run
+```
+
+> 💡 **Tip:** To confirm JAVA_HOME is set correctly in any new terminal: `echo $env:JAVA_HOME` (PowerShell) or `echo %JAVA_HOME%` (CMD).
 
 ---
 

@@ -18,7 +18,7 @@ public class DBConnection {
     private static final String DRIVER   = "com.mysql.cj.jdbc.Driver";
     private static final String DB_URL   = "jdbc:mysql://localhost:3306/training_institute_db?useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true";
     private static final String DB_USER  = "root";
-    private static final String DB_PASS  = "root";   // Change in production
+    private static final String DB_PASS  = "root";   // XAMPP MySQL password
 
     static {
         try {

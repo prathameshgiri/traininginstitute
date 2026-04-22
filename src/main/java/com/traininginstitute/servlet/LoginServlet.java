@@ -113,7 +113,16 @@ public class LoginServlet extends HttpServlet {
             redirectToDashboard(user, req, resp);
 
         } catch (SQLException e) {
-            req.setAttribute("error", "Database error. Please try again.");
+            String msg = e.getMessage() != null ? e.getMessage() : "";
+            String userMsg;
+            if (msg.contains("Communications link failure") || msg.contains("Connection refused")
+                    || msg.contains("10061") || msg.contains("Can't connect")) {
+                userMsg = "Cannot reach database. Please ensure MySQL (XAMPP) is running and try again.";
+            } else {
+                userMsg = "Database error: " + msg;
+            }
+            getServletContext().log("[LoginServlet] SQLException: " + msg, e);
+            req.setAttribute("error", userMsg);
             req.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(req, resp);
         }
     }
