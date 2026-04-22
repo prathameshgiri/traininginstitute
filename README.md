@@ -12,7 +12,11 @@ Follow these **4 Simple Steps** to get the project running in under 5 minutes:
 ### 1️⃣ Prepare the Database
 - Open **XAMPP Control Panel** and Start **MySQL**.
 - Run this command in your terminal to create the database:
-  ```cmd
+  ```powershell
+  # If using PowerShell (Blue terminal):
+  Get-Content "src/main/resources/database/schema.sql" | mysql -u root -p
+
+  # If using CMD (Black terminal):
   mysql -u root -p < "src/main/resources/database/schema.sql"
   ```
 
@@ -101,10 +105,17 @@ Ensure these paths exist in your OS Environment Variables:
 
 ### 4.1 Database Setup
 
-Execute the schema natively into your SQL client. In PowerShell/CMD:
-```bash
-mysql -u root -p < "src/main/resources/database/schema.sql"
-```
+   Execute the schema natively into your SQL client.
+   
+   **For PowerShell (Standard in VS Code):**
+   ```powershell
+   Get-Content "src/main/resources/database/schema.sql" | mysql -u root -p
+   ```
+   
+   **For Command Prompt (CMD):**
+   ```bash
+   mysql -u root -p < "src/main/resources/database/schema.sql"
+   ```
 
 ### 4.2 Maven Build Process
 
