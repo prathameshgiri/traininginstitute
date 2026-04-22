@@ -673,7 +673,7 @@ The comprehensive architectural source code backing this implementation encompas
 
 <div align="center">
 
-**Designed and Developed by Prathamesh Giri — For Ramai Kulkarni**
+**Designed and Developed by Prathamesh Giri For Ramai Kulkarni**
 
 <br/>
 
