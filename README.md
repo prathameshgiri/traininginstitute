@@ -1,9 +1,39 @@
-# Enterprise Training Institute Portal - Complete Developer & Deployment Manual
-
 <div align="center">
     <h2>Training Institute Management System</h2>
     <p>A highly scalable, secure, and modern Java Enterprise web application for managing students, internships, and online examinations.</p>
 </div>
+
+---
+
+# 🚀 QUICK START GUIDE (Simple Running Steps)
+
+Follow these **4 Simple Steps** to get the project running in under 5 minutes:
+
+### 1️⃣ Prepare the Database
+- Open **XAMPP Control Panel** and Start **MySQL**.
+- Run this command in your terminal to create the database:
+  ```cmd
+  mysql -u root -p < "src/main/resources/database/schema.sql"
+  ```
+
+### 2️⃣ Build the Project
+- Run the Maven build command using your local path:
+  ```cmd
+  C:\DevTools\apache-maven-3.9.6\bin\mvn.cmd clean compile package
+  ```
+- This will generate a file: `target/TrainingInstitutePortal.war`.
+
+### 3️⃣ Deploy to Tomcat
+- Go to `C:\DevTools\apache-tomcat-10.1.30\webapps\` and **Delete** any folder named `TrainingInstitutePortal`.
+- **Copy** the new `target/TrainingInstitutePortal.war` and **Paste** it into that `webapps` folder.
+
+### 4️⃣ Start & Browse
+- Run Tomcat in a dedicated terminal window:
+  ```cmd
+  cd C:\DevTools\apache-tomcat-10.1.30\bin
+  java.exe -classpath bootstrap.jar;tomcat-juli.jar -Dcatalina.base=.. -Dcatalina.home=.. -Djava.io.tmpdir=..\temp org.apache.catalina.startup.Bootstrap start
+  ```
+- Open your browser: **[http://localhost:8080/TrainingInstitutePortal/login](http://localhost:8080/TrainingInstitutePortal/login)**
 
 ---
 
