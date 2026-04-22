@@ -156,6 +156,26 @@ public class ExamDAO {
     // EXAM ATTEMPT MANAGEMENT
     // ================================================================
 
+    public boolean assignExamToUser(int userId, int examId) throws SQLException {
+        Connection conn = null; PreparedStatement ps = null; ResultSet rs = null;
+        try {
+            conn = DBConnection.getConnection();
+            // Check if already assigned
+            ps = conn.prepareStatement("SELECT 1 FROM exam_attempts WHERE user_id = ? AND exam_id = ?");
+            ps.setInt(1, userId); ps.setInt(2, examId);
+            rs = ps.executeQuery();
+            if (rs.next()) return false; // Already exists
+            
+            DBConnection.close(rs, ps);
+            
+            // Create the attempt record
+            ps = conn.prepareStatement("INSERT INTO exam_attempts (user_id, exam_id, status) VALUES (?, ?, 'IN_PROGRESS')");
+            ps.setInt(1, userId); ps.setInt(2, examId);
+            ps.executeUpdate();
+            return true;
+        } finally { DBConnection.close(rs, ps, conn); }
+    }
+
     /**
      * Start or Resume exam attempt.
      */

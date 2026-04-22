@@ -71,6 +71,7 @@ public class AdminDashboardServlet extends HttpServlet {
             case "/internships/delete": deleteInternship(req, resp);break;
             case "/applications/update": updateApplication(req, resp); break;
             case "/exams/add":        addExam(req, resp);           break;
+            case "/exams/assign":     assignExam(req, resp);        break;
             case "/exams/questions/add": addQuestion(req, resp);    break;
             case "/evaluate/save":    saveEvaluation(req, resp);    break;
             default:
@@ -104,6 +105,7 @@ public class AdminDashboardServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             req.setAttribute("students", studentDAO.getAllStudents());
+            req.setAttribute("exams", examDAO.getAllExams());
             req.getRequestDispatcher("/WEB-INF/views/admin/students.jsp").forward(req, resp);
         } catch (SQLException e) {
             forwardError(req, resp, e);
@@ -300,6 +302,21 @@ public class AdminDashboardServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/admin/exams?success=question_added&exam_id=" + examId);
         } catch (SQLException e) {
             resp.sendRedirect(req.getContextPath() + "/admin/exams?error=question_failed");
+        }
+    }
+
+    private void assignExam(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            int userId = Integer.parseInt(req.getParameter("user_id"));
+            int examId = Integer.parseInt(req.getParameter("exam_id"));
+            boolean success = examDAO.assignExamToUser(userId, examId);
+            if (success) {
+                resp.sendRedirect(req.getContextPath() + "/admin/students?success=exam_assigned");
+            } else {
+                resp.sendRedirect(req.getContextPath() + "/admin/students?error=already_assigned");
+            }
+        } catch (Exception e) {
+            resp.sendRedirect(req.getContextPath() + "/admin/students?error=assign_failed");
         }
     }
 
