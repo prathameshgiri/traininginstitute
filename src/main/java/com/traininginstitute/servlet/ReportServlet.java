@@ -13,6 +13,15 @@ import java.sql.*;
 import java.util.*;
 import com.traininginstitute.util.DBConnection;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * ReportServlet - Advanced Analytics and Reporting Engine.
  * Generates 5 report types by executing SQL views and aggregation queries.
@@ -21,7 +30,14 @@ import com.traininginstitute.util.DBConnection;
 @WebServlet("/admin/report/*")
 public class ReportServlet extends HttpServlet {
 
-    private final Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
+                @Override
+                public JsonElement serialize(LocalDateTime src, Type typeOfSrc, JsonSerializationContext context) {
+                    return new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                }
+            })
+            .create();
 
     private ExamDAO    examDAO;
 
@@ -53,10 +69,9 @@ public class ReportServlet extends HttpServlet {
     private void report1(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String sql = "SELECT * FROM v_selected_students_per_company ORDER BY company_name";
-        List<Map<String, Object>> data = executeQuery(sql);
         req.setAttribute("reportTitle", "Students Selected Per Company");
-        req.setAttribute("reportData",  gson.toJson(data));
-        req.setAttribute("data",        data);
+        req.setAttribute("reportData",  executeQueryAsJson(sql));
+        req.setAttribute("data",        executeQuery(sql));
         req.setAttribute("reportType",  "1");
         req.getRequestDispatcher("/WEB-INF/views/admin/report_view.jsp").forward(req, resp);
     }
@@ -65,10 +80,9 @@ public class ReportServlet extends HttpServlet {
     private void report2(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String sql = "SELECT * FROM v_internship_application_counts ORDER BY total_applications DESC";
-        List<Map<String, Object>> data = executeQuery(sql);
         req.setAttribute("reportTitle", "Internship-wise Application Statistics");
-        req.setAttribute("reportData",  gson.toJson(data));
-        req.setAttribute("data",        data);
+        req.setAttribute("reportData",  executeQueryAsJson(sql));
+        req.setAttribute("data",        executeQuery(sql));
         req.setAttribute("reportType",  "2");
         req.getRequestDispatcher("/WEB-INF/views/admin/report_view.jsp").forward(req, resp);
     }
@@ -82,10 +96,9 @@ public class ReportServlet extends HttpServlet {
             sql += " WHERE exam_id = " + Integer.parseInt(examIdParam);
         }
         sql += " ORDER BY exam_id, rank_position";
-        List<Map<String, Object>> data = executeQuery(sql);
         req.setAttribute("reportTitle", "Exam Rank List");
-        req.setAttribute("reportData",  gson.toJson(data));
-        req.setAttribute("data",        data);
+        req.setAttribute("reportData",  executeQueryAsJson(sql));
+        req.setAttribute("data",        executeQuery(sql));
         req.setAttribute("reportType",  "3");
         try { req.setAttribute("exams", examDAO.getAllExams()); } catch (Exception ignored) {}
         req.getRequestDispatcher("/WEB-INF/views/admin/report_view.jsp").forward(req, resp);
@@ -100,10 +113,9 @@ public class ReportServlet extends HttpServlet {
             sql += " WHERE exam_id = " + Integer.parseInt(examIdParam);
         }
         sql += " ORDER BY success_rate ASC";
-        List<Map<String, Object>> data = executeQuery(sql);
         req.setAttribute("reportTitle", "Question-wise Performance Analysis");
-        req.setAttribute("reportData",  gson.toJson(data));
-        req.setAttribute("data",        data);
+        req.setAttribute("reportData",  executeQueryAsJson(sql));
+        req.setAttribute("data",        executeQuery(sql));
         req.setAttribute("reportType",  "4");
         try { req.setAttribute("exams", examDAO.getAllExams()); } catch (Exception ignored) {}
         req.getRequestDispatcher("/WEB-INF/views/admin/report_view.jsp").forward(req, resp);
@@ -113,10 +125,9 @@ public class ReportServlet extends HttpServlet {
     private void report5(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         String sql = "SELECT * FROM v_suspicious_activities ORDER BY log_time DESC LIMIT 500";
-        List<Map<String, Object>> data = executeQuery(sql);
         req.setAttribute("reportTitle", "Suspicious Activity Logs");
-        req.setAttribute("reportData",  gson.toJson(data));
-        req.setAttribute("data",        data);
+        req.setAttribute("reportData",  executeQueryAsJson(sql));
+        req.setAttribute("data",        executeQuery(sql));
         req.setAttribute("reportType",  "5");
         req.getRequestDispatcher("/WEB-INF/views/admin/report_view.jsp").forward(req, resp);
     }
@@ -125,7 +136,6 @@ public class ReportServlet extends HttpServlet {
     private void dashboardStats(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         resp.setContentType("application/json");
         PrintWriter out = resp.getWriter();
-        Map<String, Object> stats = new LinkedHashMap<>();
 
         String appsByStatusSql = "SELECT status, COUNT(*) AS count FROM applications GROUP BY status";
         String examPassRateSql = "SELECT e.exam_name, " +
@@ -137,14 +147,61 @@ public class ReportServlet extends HttpServlet {
         String monthlyRegSql = "SELECT DATE_FORMAT(created_at, '%Y-%m') AS month, COUNT(*) AS count " +
             "FROM users WHERE role = 'STUDENT' GROUP BY month ORDER BY month DESC LIMIT 12";
 
-        stats.put("applicationsByStatus", executeQuery(appsByStatusSql));
-        stats.put("examPassRate", executeQuery(examPassRateSql));
-        stats.put("monthlyRegistrations", executeQuery(monthlyRegSql));
-
-        out.print(gson.toJson(stats));
+        // Build JSON manually - no Gson
+        out.print("{\"applicationsByStatus\":" + executeQueryAsJson(appsByStatusSql)
+            + ",\"examPassRate\":" + executeQueryAsJson(examPassRateSql)
+            + ",\"monthlyRegistrations\":" + executeQueryAsJson(monthlyRegSql) + "}");
     }
 
-    /** Generic SQL → List<Map> executor */
+    /** Generic SQL → JSON string (no Gson, all values converted to strings) */
+    private String executeQueryAsJson(String sql) {
+        StringBuilder json = new StringBuilder("[");
+        Connection conn = null; Statement st = null; ResultSet rs = null;
+        try {
+            conn = DBConnection.getConnection();
+            st = conn.createStatement();
+            rs = st.executeQuery(sql);
+            ResultSetMetaData meta = rs.getMetaData();
+            int cols = meta.getColumnCount();
+            boolean firstRow = true;
+            while (rs.next()) {
+                if (!firstRow) json.append(",");
+                firstRow = false;
+                json.append("{");
+                for (int i = 1; i <= cols; i++) {
+                    if (i > 1) json.append(",");
+                    String colName = meta.getColumnLabel(i);
+                    String val = rs.getString(i); // getString avoids all LocalDateTime issues
+                    json.append("\"").append(colName.replace("\"","\\\"")).append("\":");
+                    if (val == null) {
+                        json.append("null");
+                    } else {
+                        // Try to keep numbers as numbers for chart.js
+                        int colType = meta.getColumnType(i);
+                        if ((colType == java.sql.Types.INTEGER || colType == java.sql.Types.BIGINT
+                                || colType == java.sql.Types.SMALLINT || colType == java.sql.Types.TINYINT
+                                || colType == java.sql.Types.FLOAT || colType == java.sql.Types.DOUBLE
+                                || colType == java.sql.Types.DECIMAL || colType == java.sql.Types.NUMERIC
+                                || colType == java.sql.Types.BIT || colType == java.sql.Types.BOOLEAN)
+                                && !val.isEmpty()) {
+                            json.append(val);
+                        } else {
+                            json.append("\"").append(val.replace("\\","\\\\").replace("\"","\\\"")
+                                    .replace("\n","\\n").replace("\r","\\r")).append("\"");
+                        }
+                    }
+                }
+                json.append("}");
+            }
+        } catch (SQLException e) {
+            // return empty array
+        } finally {
+            DBConnection.close(rs, st, conn);
+        }
+        return json.append("]").toString();
+    }
+
+    /** Generic SQL → List<Map> for JSP table rendering */
     private List<Map<String, Object>> executeQuery(String sql) {
         List<Map<String, Object>> result = new ArrayList<>();
         Connection conn = null; Statement st = null; ResultSet rs = null;
@@ -156,7 +213,10 @@ public class ReportServlet extends HttpServlet {
             int cols = meta.getColumnCount();
             while (rs.next()) {
                 Map<String, Object> row = new LinkedHashMap<>();
-                for (int i = 1; i <= cols; i++) row.put(meta.getColumnLabel(i), rs.getObject(i));
+                for (int i = 1; i <= cols; i++) {
+                    // Always use getString to avoid LocalDateTime reflection crash
+                    row.put(meta.getColumnLabel(i), rs.getString(i));
+                }
                 result.add(row);
             }
         } catch (SQLException e) {

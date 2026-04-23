@@ -423,6 +423,72 @@ public class ExamDAO {
         } finally { DBConnection.close(ps, conn); }
     }
 
+    /**
+     * Get all exam attempts for a specific student (by user_id).
+     */
+    public List<ExamAttempt> getAttemptsByUser(int userId) throws SQLException {
+        String sql = "SELECT ea.*, e.duration AS exam_duration, e.total_marks, e.passing_marks, e.exam_name " +
+                     "FROM exam_attempts ea JOIN exams e ON ea.exam_id = e.exam_id " +
+                     "WHERE ea.user_id = ? ORDER BY ea.start_time DESC";
+        List<ExamAttempt> list = new ArrayList<>();
+        Connection conn = null; PreparedStatement ps = null; ResultSet rs = null;
+        try {
+            conn = DBConnection.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, userId);
+            rs = ps.executeQuery();
+            while (rs.next()) list.add(mapAttempt(rs));
+        } finally { DBConnection.close(rs, ps, conn); }
+        return list;
+    }
+
+    /**
+     * Delete a question (and its options/answers via ON DELETE CASCADE).
+     */
+    public boolean deleteQuestion(int questionId) throws SQLException {
+        String sql = "DELETE FROM questions WHERE question_id = ?";
+        Connection conn = null; PreparedStatement ps = null;
+        try {
+            conn = DBConnection.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, questionId);
+            return ps.executeUpdate() > 0;
+        } finally { DBConnection.close(ps, conn); }
+    }
+
+    /**
+     * Update existing question text and marks.
+     */
+    public boolean updateQuestion(int questionId, String questionText, int marks, String difficulty) throws SQLException {
+        String sql = "UPDATE questions SET question_text=?, marks=?, difficulty=? WHERE question_id=?";
+        Connection conn = null; PreparedStatement ps = null;
+        try {
+            conn = DBConnection.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, questionText); ps.setInt(2, marks);
+            ps.setString(3, difficulty); ps.setInt(4, questionId);
+            return ps.executeUpdate() > 0;
+        } finally { DBConnection.close(ps, conn); }
+    }
+
+    /**
+     * Update exam status (activate/deactivate).
+     */
+    public boolean updateExam(int examId, String examName, String description, int duration,
+                              int totalMarks, int passingMarks, String status) throws SQLException {
+        String sql = "UPDATE exams SET exam_name=?, description=?, duration=?, total_marks=?, passing_marks=?, status=? WHERE exam_id=?";
+        Connection conn = null; PreparedStatement ps = null;
+        try {
+            conn = DBConnection.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, examName); ps.setString(2, description);
+            ps.setInt(3, duration); ps.setInt(4, totalMarks);
+            ps.setInt(5, passingMarks); ps.setString(6, status);
+            ps.setInt(7, examId);
+            return ps.executeUpdate() > 0;
+        } finally { DBConnection.close(ps, conn); }
+    }
+
     public List<ExamAttempt> getAllAttemptsByExam(int examId) throws SQLException {
         String sql = "SELECT ea.*, e.duration AS exam_duration, e.total_marks, e.passing_marks, e.exam_name, " +
                      "u.name AS student_name FROM exam_attempts ea " +

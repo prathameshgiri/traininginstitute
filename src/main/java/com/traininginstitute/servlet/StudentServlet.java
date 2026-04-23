@@ -180,10 +180,10 @@ public class StudentServlet extends HttpServlet {
     // ================================================================
     private void showResults(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-
+        User user = getUser(req);
         try {
-            // Show exam results for the logged-in student
-            req.setAttribute("exams", examDAO.getAllExams());
+            // Load student's own exam attempt history with scores
+            req.setAttribute("myAttempts", examDAO.getAttemptsByUser(user.getUserId()));
             req.getRequestDispatcher("/WEB-INF/views/student/results.jsp").forward(req, resp);
         } catch (SQLException e) {
             forwardError(req, resp, e);

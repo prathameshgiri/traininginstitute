@@ -49,6 +49,9 @@
                 <a href="${pageContext.request.contextPath}/student/exam/list" class="${pageTitle eq 'Exams' ? 'active' : ''}">
                     <i class="fas fa-laptop-code"></i> Exams
                 </a>
+                <a href="${pageContext.request.contextPath}/student/results" class="${pageTitle eq 'My Results' ? 'active' : ''}">
+                    <i class="fas fa-chart-bar"></i> My Results
+                </a>
             </c:when>
         </c:choose>
     </div>

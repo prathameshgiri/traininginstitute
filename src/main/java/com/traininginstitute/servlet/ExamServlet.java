@@ -73,8 +73,13 @@ public class ExamServlet extends HttpServlet {
     // ================================================================
     private void showExamList(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
+        User user = getUser(req);
         try {
             req.setAttribute("exams", examDAO.getAllExams());
+            // Pass student's own attempts so JSP can show inline result per exam
+            if (user != null) {
+                req.setAttribute("myAttempts", examDAO.getAttemptsByUser(user.getUserId()));
+            }
             req.getRequestDispatcher("/WEB-INF/views/student/exam_list.jsp").forward(req, resp);
         } catch (SQLException e) {
             forwardError(req, resp, e);

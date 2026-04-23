@@ -48,6 +48,7 @@ public class AdminDashboardServlet extends HttpServlet {
             case "/internships": showInternships(req, resp);   break;
             case "/applications": showApplications(req, resp); break;
             case "/exams":      showExams(req, resp);          break;
+            case "/exams/questions": showExamQuestions(req, resp); break;
             case "/reports":    showReports(req, resp);        break;
             case "/audit-logs": showAuditLogs(req, resp);      break;
             case "/evaluate":   showEvaluation(req, resp);     break;
@@ -71,8 +72,10 @@ public class AdminDashboardServlet extends HttpServlet {
             case "/internships/delete": deleteInternship(req, resp);break;
             case "/applications/update": updateApplication(req, resp); break;
             case "/exams/add":        addExam(req, resp);           break;
+            case "/exams/update":     updateExam(req, resp);        break;
             case "/exams/assign":     assignExam(req, resp);        break;
-            case "/exams/questions/add": addQuestion(req, resp);    break;
+            case "/exams/questions/add":    addQuestion(req, resp);       break;
+            case "/exams/questions/delete": deleteQuestion(req, resp);    break;
             case "/evaluate/save":    saveEvaluation(req, resp);    break;
             default:
                 resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
@@ -248,6 +251,34 @@ public class AdminDashboardServlet extends HttpServlet {
         try {
             req.setAttribute("exams", examDAO.getAllExams());
             req.setAttribute("internships", companyDAO.getAllInternships());
+            // If an exam_id param is passed, load its questions too
+            String examIdParam = req.getParameter("exam_id");
+            if (examIdParam != null && !examIdParam.isEmpty()) {
+                int eid = Integer.parseInt(examIdParam);
+                req.setAttribute("selectedExamId", eid);
+                req.setAttribute("selectedExam", examDAO.getExamById(eid));
+                req.setAttribute("examQuestions", examDAO.getQuestionsWithOptions(eid));
+            }
+            req.getRequestDispatcher("/WEB-INF/views/admin/exams.jsp").forward(req, resp);
+        } catch (SQLException e) {
+            forwardError(req, resp, e);
+        }
+    }
+
+    private void showExamQuestions(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        try {
+            String examIdParam = req.getParameter("exam_id");
+            if (examIdParam == null) {
+                resp.sendRedirect(req.getContextPath() + "/admin/exams");
+                return;
+            }
+            int eid = Integer.parseInt(examIdParam);
+            req.setAttribute("exams", examDAO.getAllExams());
+            req.setAttribute("internships", companyDAO.getAllInternships());
+            req.setAttribute("selectedExamId", eid);
+            req.setAttribute("selectedExam", examDAO.getExamById(eid));
+            req.setAttribute("examQuestions", examDAO.getQuestionsWithOptions(eid));
             req.getRequestDispatcher("/WEB-INF/views/admin/exams.jsp").forward(req, resp);
         } catch (SQLException e) {
             forwardError(req, resp, e);
@@ -302,6 +333,33 @@ public class AdminDashboardServlet extends HttpServlet {
             resp.sendRedirect(req.getContextPath() + "/admin/exams?success=question_added&exam_id=" + examId);
         } catch (SQLException e) {
             resp.sendRedirect(req.getContextPath() + "/admin/exams?error=question_failed");
+        }
+    }
+
+    private void updateExam(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            int examId = Integer.parseInt(req.getParameter("exam_id"));
+            String name = req.getParameter("exam_name");
+            String desc = req.getParameter("description");
+            int duration = Integer.parseInt(req.getParameter("duration"));
+            int totalMarks = Integer.parseInt(req.getParameter("total_marks"));
+            int passingMarks = Integer.parseInt(req.getParameter("passing_marks"));
+            String status = req.getParameter("status");
+            examDAO.updateExam(examId, name, desc, duration, totalMarks, passingMarks, status);
+            resp.sendRedirect(req.getContextPath() + "/admin/exams?exam_id=" + examId + "&success=exam_updated");
+        } catch (Exception e) {
+            resp.sendRedirect(req.getContextPath() + "/admin/exams?error=update_failed");
+        }
+    }
+
+    private void deleteQuestion(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        try {
+            int questionId = Integer.parseInt(req.getParameter("question_id"));
+            int examId = Integer.parseInt(req.getParameter("exam_id"));
+            examDAO.deleteQuestion(questionId);
+            resp.sendRedirect(req.getContextPath() + "/admin/exams?exam_id=" + examId + "&success=question_deleted");
+        } catch (Exception e) {
+            resp.sendRedirect(req.getContextPath() + "/admin/exams?error=delete_failed");
         }
     }
 
