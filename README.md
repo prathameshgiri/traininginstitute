@@ -18,28 +18,12 @@ This project is built using industry-standard tools for high performance, securi
 
 # 🚀 QUICK START GUIDE
 
-## ✅ EASIEST WAY — Just 3 Steps!
+## ✅ EASIEST WAY — Just 2 Steps!
 
-### Step 1️⃣ — Do This Only Once (Database Setup)
+### Step 1️⃣ — Run the Project (One Command)
 
-Open XAMPP Control Panel → Click **Start** next to **MySQL** → Then run this command:
-
-```powershell
-& "C:\xampp\mysql\bin\mysql.exe" -u root -proot training_institute_db 2>$null
-if ($LASTEXITCODE -ne 0) {
-    & "C:\xampp\mysql\bin\mysql.exe" -u root -proot -e "CREATE DATABASE IF NOT EXISTS training_institute_db;"
-    Get-Content "src\main\resources\database\schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root -proot training_institute_db
-    Write-Host "Database imported!" -ForegroundColor Green
-} else { Write-Host "Database already exists, skipping." -ForegroundColor Yellow }
-```
-
-> ⚠️ Run this command **only the first time** you set up the project.
-
----
-
-### Step 2️⃣ — Run the Project Every Time (One Command)
-
-Open PowerShell and navigate to the project folder, then run the automation script:
+Open XAMPP Control Panel → Click **Start** next to **MySQL**.
+Then open PowerShell, navigate to the project folder, and run the automation script:
 
 ```powershell
 cd "D:\Workspaces\OpenSource Projects\Aarvi Kulkarni"
@@ -48,6 +32,7 @@ cd "D:\Workspaces\OpenSource Projects\Aarvi Kulkarni"
 
 **That's it!** The script will automatically:
 - ✅ Check if MySQL is running
+- ✅ **Auto-detect and create the Database if missing (tries common passwords like blank, root, admin)**
 - ✅ Stop any old Tomcat instances
 - ✅ Build the project with Maven
 - ✅ Deploy the WAR file
@@ -55,7 +40,7 @@ cd "D:\Workspaces\OpenSource Projects\Aarvi Kulkarni"
 
 ---
 
-### Step 3️⃣ — Open in Browser
+### Step 2️⃣ — Open in Browser
 
 Once you see `Server startup in [XXXX] milliseconds` in the terminal:
 

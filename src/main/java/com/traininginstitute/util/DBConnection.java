@@ -18,7 +18,8 @@ public class DBConnection {
     private static final String DRIVER   = "com.mysql.cj.jdbc.Driver";
     private static final String DB_URL   = "jdbc:mysql://localhost:3306/training_institute_db?useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&zeroDateTimeBehavior=convertToNull";
     private static final String DB_USER  = "root";
-    private static final String DB_PASS  = "root";   // XAMPP MySQL password
+    // List of common XAMPP / local MySQL passwords to try dynamically
+    private static final String[] DB_PASSWORDS = {"", "root", "admin", "password"};
 
     static {
         try {
@@ -33,11 +34,19 @@ public class DBConnection {
     private DBConnection() { /* Utility class – no instantiation */ }
 
     /**
-     * Returns a new database connection.
+     * Returns a new database connection by trying common local passwords.
      * Caller is responsible for closing the connection.
      */
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+        SQLException lastException = null;
+        for (String pass : DB_PASSWORDS) {
+            try {
+                return DriverManager.getConnection(DB_URL, DB_USER, pass);
+            } catch (SQLException e) {
+                lastException = e;
+            }
+        }
+        throw new SQLException("Could not connect to database using any of the common local passwords.", lastException);
     }
 
     /**

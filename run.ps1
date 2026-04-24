@@ -41,6 +41,37 @@ if (-not $mysqlRunning) {
 }
 Write-Host "      MySQL is running." -ForegroundColor Green
 
+# ── Step 2.5: Auto-Initialize Database ────────────────────
+Write-Host "[2.5/5] Checking database existence..." -ForegroundColor Yellow
+$passwords = @("", "root", "admin", "password")
+$dbConnected = $false
+foreach ($pass in $passwords) {
+    if ($pass -eq "") {
+        $result = cmd.exe /c "`"$MYSQL_EXE`" -u root -e `"SHOW DATABASES LIKE 'training_institute_db';`" 2>&1"
+    } else {
+        $result = cmd.exe /c "`"$MYSQL_EXE`" -u root -p$pass -e `"SHOW DATABASES LIKE 'training_institute_db';`" 2>&1"
+    }
+    
+    if ($LASTEXITCODE -eq 0) {
+        $dbConnected = $true
+        if (-not ($result -match "training_institute_db")) {
+            Write-Host "        Database missing. Auto-creating from schema.sql..." -ForegroundColor Yellow
+            $schemaPath = "$PROJECT_ROOT\src\main\resources\database\schema.sql"
+            if ($pass -eq "") {
+                cmd.exe /c "`"$MYSQL_EXE`" -u root < `"$schemaPath`""
+            } else {
+                cmd.exe /c "`"$MYSQL_EXE`" -u root -p$pass < `"$schemaPath`""
+            }
+            Write-Host "        Database initialized successfully!" -ForegroundColor Green
+        } else {
+            Write-Host "        Database already exists." -ForegroundColor Green
+        }
+        break
+    }
+}
+if (-not $dbConnected) {
+    Write-Host "        WARNING: Could not auto-check/create DB (Invalid root password). Please ensure DB exists manually." -ForegroundColor Red
+}
 # ── Step 3: Kill any old Tomcat/Java processes ────────────
 Write-Host "[3/5] Stopping old Tomcat (if any)..." -ForegroundColor Yellow
 Get-Process -Name "java" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
