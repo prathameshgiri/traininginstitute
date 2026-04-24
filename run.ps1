@@ -43,7 +43,7 @@ Write-Host "      MySQL is running." -ForegroundColor Green
 
 # ── Step 2.5: Auto-Initialize Database ────────────────────
 Write-Host "[2.5/5] Checking database existence..." -ForegroundColor Yellow
-$passwords = @("", "root", "admin", "password")
+$passwords = @("", "root", "admin", "password", "ramai24")
 $dbConnected = $false
 foreach ($pass in $passwords) {
     if ($pass -eq "") {

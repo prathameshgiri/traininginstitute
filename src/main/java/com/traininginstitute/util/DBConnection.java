@@ -19,7 +19,7 @@ public class DBConnection {
     private static final String DB_URL   = "jdbc:mysql://localhost:3306/training_institute_db?useSSL=false&serverTimezone=Asia/Kolkata&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true&zeroDateTimeBehavior=convertToNull";
     private static final String DB_USER  = "root";
     // List of common XAMPP / local MySQL passwords to try dynamically
-    private static final String[] DB_PASSWORDS = {"", "root", "admin", "password"};
+    private static final String[] DB_PASSWORDS = {"", "root", "admin", "password", "ramai24"};
 
     static {
         try {
