@@ -18,27 +18,48 @@ This project is built using industry-standard tools for high performance, securi
 
 # 🚀 QUICK START GUIDE
 
-## ✅ EASIEST WAY — Just 2 Steps!
+## ✅ EASIEST WAY — Step-by-Step Guide
 
-### Step 1️⃣ — Run the Project (One Command)
+Follow these exact steps to run the project on any laptop without errors:
 
-Open XAMPP Control Panel → Click **Start** next to **MySQL**.
-Then open PowerShell, navigate to the project folder, and run the automation script:
+### Step 1️⃣ — Start XAMPP & MySQL
+1. Open **XAMPP Control Panel** from your Windows Start Menu.
+2. Click the **Start** button next to **MySQL**. Wait until the background turns green.
+
+### Step 2️⃣ — Open PowerShell
+1. Click the Windows Start Button and search for `PowerShell`.
+2. Click **Windows PowerShell** to open the blue terminal window.
+
+### Step 3️⃣ — Navigate to the Project Folder
+Copy the following command, paste it into your PowerShell window (Right-Click to paste), and hit **Enter**:
 
 ```powershell
 cd "D:\Workspaces\OpenSource Projects\Aarvi Kulkarni"
+```
+*(Note: If your folder path is different on another laptop, change the path in the command above to match where you saved the project).*
+
+### Step 4️⃣ — Run the Automation Script
+Now copy this script command, paste it into PowerShell, and hit **Enter**:
+
+```powershell
 .\run.ps1
 ```
 
-**That's it!** The script will automatically:
-- ✅ Check if MySQL is running
-- ✅ **Auto-detect and create the Database if missing (tries common passwords like blank, root, admin)**
-- ✅ Stop any old Tomcat instances
-- ✅ Build the project with Maven
-- ✅ Deploy the WAR file
-- ✅ Start Tomcat
+**That's it! What happens next?**
+Sit back and wait. The script will automatically do everything for you:
+- ✅ **Auto-detect Database:** Checks if the database is present. If not, it will automatically test common passwords (blank, `root`, `admin`) and create `training_institute_db` for you using `schema.sql`.
+- ✅ **Clean up:** Stops any old Tomcat/Java processes stuck in the background.
+- ✅ **Build & Deploy:** Compiles the Java project with Maven and deploys the `.war` file to Tomcat.
+- ✅ **Start Server:** Starts the Apache Tomcat server automatically.
 
 ---
+
+*(Optional) Manual Database Setup:*
+If the `.\run.ps1` script fails to create the database automatically because of a very strict MySQL password, you can manually run this command in PowerShell:
+```powershell
+& "C:\xampp\mysql\bin\mysql.exe" -u root -e "CREATE DATABASE IF NOT EXISTS training_institute_db;"
+Get-Content "src\main\resources\database\schema.sql" | & "C:\xampp\mysql\bin\mysql.exe" -u root training_institute_db
+```
 
 ### Step 2️⃣ — Open in Browser
 
